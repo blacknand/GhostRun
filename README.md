@@ -22,13 +22,11 @@ ctest --output-on-failure
 
 # Or run individually
 ./ion_test_gtest
-./ion_test_catch2
 ```
 
 ### Build with only one framework
 ```bash
 cmake -DION_USE_CATCH2=OFF ..   # GoogleTest only
-cmake -DION_USE_GTEST=OFF ..    # Catch2 only
 cmake -DION_BUILD_TESTS=OFF ..  # No tests
 ```
 
