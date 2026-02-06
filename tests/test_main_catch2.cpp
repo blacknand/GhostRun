@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include <ion/IR.H>
+#include <ion/IR.h>
 
 TEST_CASE("IR basic functionality", "[IR]") {
     SECTION("basic test") {

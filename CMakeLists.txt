@@ -8,7 +8,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Options
 option(ION_BUILD_TESTS "Build tests" ON)
 option(ION_USE_GTEST "Use GoogleTest" ON)
-option(ION_USE_CATCH2 "Use Catch2" ON)
 
 # Main library (so tests can link against it)
 add_library(ion_lib
@@ -49,31 +48,12 @@ if(ION_BUILD_TESTS)
         # GoogleTest executable
         add_executable(ion_test_gtest
             tests/test_main_gtest.cpp
+            tests/test_ir.cpp
             # Add more test files here
         )
         target_link_libraries(ion_test_gtest PRIVATE ion_lib GTest::gtest_main)
         
         include(GoogleTest)
         gtest_discover_tests(ion_test_gtest)
-    endif()
-
-    # Catch2
-    if(ION_USE_CATCH2)
-        FetchContent_Declare(
-            Catch2
-            GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-            GIT_TAG v3.5.2
-        )
-        FetchContent_MakeAvailable(Catch2)
-
-        # Catch2 executable
-        add_executable(ion_test_catch2
-            tests/test_main_catch2.cpp
-            # Add more test files here
-        )
-        target_link_libraries(ion_test_catch2 PRIVATE ion_lib Catch2::Catch2WithMain)
-
-        include(Catch)
-        catch_discover_tests(ion_test_catch2)
     endif()
 endif()

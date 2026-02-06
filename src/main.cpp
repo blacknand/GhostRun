@@ -25,56 +25,57 @@ int main() {
     Function myFunc;
     myFunc.name = "test_func";
 
-    BasicBlock entryBlock;
-    entryBlock.id = 1;
-    entryBlock.label = "entry";
+    BasicBlock* entryBlock = new BasicBlock();
+    entryBlock->id = 1;
+    entryBlock->label = "entry";
 
-    BasicBlock exitBlock;
-    exitBlock.id = 2;
-    exitBlock.label = "L_EXIT";
+    BasicBlock* exitBlock = new BasicBlock();
+    exitBlock->id = 2;
+    exitBlock->label = "L_EXIT";
 
     // %1 = 10 (MOV)
-    entryBlock.instrs.push_back(Instruction {
+    entryBlock->instrs.push_back(Instruction {
         .op = Opcode::MOV,
         .def = r1,
         .uses = {i10}
     });
 
     // %2 = 20
-    entryBlock.instrs.push_back(Instruction {
+    entryBlock->instrs.push_back(Instruction {
         .op = Opcode::MOV,
         .def = r2,
         .uses = {i20}
     });
 
     // %3 = ADD %1, %2
-    entryBlock.instrs.push_back(Instruction {
+    entryBlock->instrs.push_back(Instruction {
         .op = Opcode::ADD,
         .def = r3,
         .uses = {r1, r2}
     });
 
     // BEQ %3, 30, L_EXIT
-    entryBlock.instrs.push_back({
+    entryBlock->instrs.push_back({
         Opcode::BEQ,
         std::monostate{},
         {r3, i30, l_exit}
     });
 
     // RET %3
-    entryBlock.instrs.push_back({
+    entryBlock->instrs.push_back({
         Opcode::RET,
         std::monostate{},
         {r3}
     });
 
-    entryBlock.succs.push_back(&exitBlock);     // Entry -> Exit
-    exitBlock.preds.push_back(&entryBlock);     // Exit <- Entry
+    entryBlock->succs.push_back(exitBlock);     // Entry -> Exit
+    exitBlock->preds.push_back(entryBlock);     // Exit <- Entry
+
     myFunc.blocks.push_back(entryBlock);
     myFunc.blocks.push_back(exitBlock);
     std::cout << "Successfully constructed function " << myFunc.name << "\n";
-    for (const BasicBlock &b : myFunc.blocks) {
-        for (const Instruction &i : b.instrs)
+    for (const BasicBlock *b : myFunc.blocks) {
+        for (const Instruction &i : b->instrs)
             i.dump();
     }
     return 0;

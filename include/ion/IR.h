@@ -44,7 +44,7 @@ struct BasicBlock {
 
 struct Function {
     std::string name;
-    std::vector<BasicBlock> blocks;         // Owner of the memory
+    std::vector<BasicBlock*> blocks;         // Owner of the memory
 };
 
 // Overloads

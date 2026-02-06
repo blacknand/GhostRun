@@ -1,6 +1,6 @@
 # Phase 1: The Skeleton & IR (Weeks 1-2)
 
-- [ ] **1.1 Define the IR Structure**
+- [x] **1.1 Define the IR Structure**
   - Create Instruction struct (Opcode, Def, Uses).
   - Create BasicBlock struct (List of Instructions, Predecessors, Successors).
   - Create Function struct (List of Basic Blocks).
