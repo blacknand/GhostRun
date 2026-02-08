@@ -16,7 +16,7 @@ Token Lexer::next() {
     if (c == '\n') {
         advance();
         m_line++;
-        return makeToken(TokenType::NewLine, start, 1);
+        return makeToken(TokenType::Newline, start, 1);
     }
 
     // Handle puncutation
@@ -38,7 +38,7 @@ Token Lexer::next() {
     }
 
     if (std::isalpha(c) || c == '.' || c == '_') {
-        while (std::isalum(current()) || current() == '.' || current() == '_')
+        while (std::isalnum(current()) || current() == '.' || current() == '_')
             advance();
 
         return makeToken(TokenType::Unkown, start, 1);
@@ -48,7 +48,7 @@ Token Lexer::next() {
     return makeToken(TokenType::Unkown, start, 1);
 }
 
-Token Lexer::peek() {
+Token Lexer::peek() const {
     Lexer lookahead = *this;
     return lookahead.next();
 }

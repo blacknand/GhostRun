@@ -31,13 +31,13 @@ std::unique_ptr<Function> IRParser::parseFunction() {
 
     while (m_currentToken.type != TokenType::EndOfFile) {
         // Skip empty lines
-        if (m_currentToken.type == TokenType::NewLine) {
+        if (m_currentToken.type == TokenType::Newline) {
             m_currentToken = m_lexer.next();
             continue;
         }
 
         // Identify label
-        if (m_currentToken.type == TokenType::Opcode && m_lexer.peak().type == TokenType::Colon) {
+        if (m_currentToken.type == TokenType::Opcode && m_lexer.peek().type == TokenType::Colon) {
             // If the current block has instrctions, we must finish it and start a new one
             if (!currentBlock->instrs.empty() || !currentBlock->label.empty()) {
                 fn->blocks.push_back(std::move(currentBlock));
@@ -45,7 +45,7 @@ std::unique_ptr<Function> IRParser::parseFunction() {
                 currentBlock->id = fn->blocks.size();
             }
 
-            parseLable(*fn, *currentBlock);
+            parseLabel(*fn, *currentBlock);
         }
 
         else if (m_currentToken.type == TokenType::Opcode) {
@@ -53,7 +53,7 @@ std::unique_ptr<Function> IRParser::parseFunction() {
         }
 
         else {
-            std::cerr << "Unexpected token at top level: " m_currentToken.toString() << "\n";
+            std::cerr << "Unexpected token at top level: " << m_currentToken.toString() << "\n";
             m_currentToken = m_lexer.next();
         }
     }
@@ -70,8 +70,8 @@ void IRParser::parseLabel(Function& fn, BasicBlock& block) {
     consume(TokenType::Opcode, "Expected label name");
     consume(TokenType::Colon, "Expected colon after label");
 
-    if (m_currentToken.type == TokenType::NewLine) {
-        consume(TokenType::NewLine, "Expected newline after label");
+    if (m_currentToken.type == TokenType::Newline) {
+        consume(TokenType::Newline, "Expected newline after label");
     }
 }
 
@@ -85,7 +85,7 @@ void IRParser::parseInstruction(Function& fn, BasicBlock& block) {
     else if (opText == "RET") instr.op = Opcode::RET;
     else if (opText == "JMP") instr.op = Opcode::JMP;
     else if (opText == "BEQ") instr.op = Opcode::BEQ;
-    else if throw std::runtime_error("Unexpected Opcode: " + opText);
+    else throw std::runtime_error("Unexpected Opcode: " + opText);
 
     consume(TokenType::Opcode, "Expecetd Opcode");
 
@@ -123,6 +123,6 @@ void IRParser::parseInstruction(Function& fn, BasicBlock& block) {
 
     block.instrs.push_back(instr);
 
-    if (m_currentToken.type == TokenType::NewLine)
+    if (m_currentToken.type == TokenType::Newline)
         consume(TokenType::Newline, "Expected Newline");
 }
