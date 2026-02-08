@@ -5,7 +5,7 @@
   - Create BasicBlock struct (List of Instructions, Predecessors, Successors).
   - Create Function struct (List of Basic Blocks).
 
-- [ ] **1.2 Build the CFG Builder**
+- [X] **1.2 Build the CFG Builder**
   - Write a parser that reads a text file (e.g., input.ir) and constructs the Function object.
   - Requirement: It must handle labels and branches (JMP label, BEQ label).
 

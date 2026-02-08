@@ -9,7 +9,7 @@
 
 class IRParser {
 public:
-    explicit Parser(Lexer& lexer) : m_lexer(lexer) {
+    explicit IRParser(Lexer& lexer) : m_lexer(lexer) {
         m_currentToken = m_lexer.next();
     }
 
@@ -18,9 +18,9 @@ private:
     Lexer& m_lexer;
     Token m_currentToken;
 
-    void parseLine(Function& fn);
-    void parseLabel(Function& fn);
-    void parseInstruction(Function& fn);
+    void parseLine(Function& fn, BasicBlock& block);
+    void parseLabel(Function& fn, BasicBlock& block);
+    void parseInstruction(Function& fn, BasicBlock& block);
 
     void consume(TokenType type, const std::string& errorMsg);
     bool match(TokenType type);
