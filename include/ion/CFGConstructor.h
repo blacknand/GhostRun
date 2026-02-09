@@ -1,12 +1,15 @@
 #pragma once
 
-#include "IRParser.h"
+#include "IR.h"
+
+#include <map>
+#include <string>
 
 class CFGConstructor {
 public:
-    void findLeaders();
-    void buildGraph();
-    void dumpCFG(const Function& fn);
-public:
-    // Some kind of graph object
+    static void construct(Function& fn);
+    static void dumpCFG(const Function& fn);
+private:
+    static void addEdge(BasicBlock* from, BasicBlock* to);
+    // std::string getTargetLabel(const Instruction& istr);
 };

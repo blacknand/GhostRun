@@ -60,6 +60,7 @@ if(ION_BUILD_TESTS)
             tests/test_main_gtest.cpp
             tests/test_ir.cpp
             tests/test_frontend.cpp
+            tests/testCFG.cpp
         )
         target_link_libraries(ion_test_gtest PRIVATE ion_lib GTest::gtest_main)
         
