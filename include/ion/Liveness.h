@@ -18,7 +18,7 @@ struct LivenessResult {
     std::map<int, std::set<int>> liveinSet;     // NOTE: have no idea if want
 
     // NOTE: fast, but with spare IDs may not be good idea
-    // Indexed by block ID
+    // Indexed by block ID, only if the CFGConstructor ensures dense IDs
     // std::vector<std::set<int>> liveoutSet;        
     // std::vector<std::set<int>> liveinSet;
 };

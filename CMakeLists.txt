@@ -15,6 +15,7 @@ add_library(ion_lib
     src/CFGConstructor.cpp
     src/IRParser.cpp
     src/Lexer.cpp
+    src/Liveness.cpp
 )
 target_include_directories(ion_lib PUBLIC
     ${CMAKE_SOURCE_DIR}/include
@@ -61,6 +62,7 @@ if(ION_BUILD_TESTS)
             tests/test_ir.cpp
             tests/test_frontend.cpp
             tests/testCFG.cpp
+            tests/test_liveness.cpp
         )
         target_link_libraries(ion_test_gtest PRIVATE ion_lib GTest::gtest_main)
         
