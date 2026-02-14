@@ -2,7 +2,7 @@
 #include <IR.h>
 #include <Liveness.h>
 
-class LivenessAnalysisTest : testing::Test {
+class LivenessAnalysisTest : public testing::Test {
 protected:
     /*
     The test fixture operates on this test IR program:
@@ -54,16 +54,15 @@ protected:
         });
 
         // JMP B
-        Label b_exit = Label{.name="test_block_B"};
+        Operand b_exit = Label{.name="test_block_B"};
         B.instrs.push_back(Instruction {
             .op = Opcode::JMP,
             .def = std::monostate{},
-            .uses = b_ext
+            .uses = {b_exit}
         });
 
-
     }
-}
+};
 
 TEST_F(LivenessAnalysisTest, GatherInitialInfo) {
     Function f;
