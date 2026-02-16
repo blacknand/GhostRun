@@ -5,9 +5,26 @@ LivenessInfo computeUseDef(Function& fn) {
     // each block has k operations of the form "x <- y op z".
     LivenessInfo li;
     for (const auto &block : fn.blocks) {
+        // Get initial number of VRegs
+        int maxID = 0;
+        for (const auto& instr : block->instrs) {
+            if (auto* def = std::get_if<VReg>(&instr.def)) {
+                maxID = std::max(maxID, def->id);
+            }
+
+            for (const auto &use : instr.uses) {
+                if (auto* reg = std::get_if<VReg>(&use)) {
+                    maxID = std::max(maxID, reg->id);
+                }
+            }
+        }
+        int numVars = maxID + 1;
+
         // Initialise UEVar and VarKill with the block ID and all 0s
-        li.UEVar.insert({block->id, {false}});
-        li.VarKill.insert({block->id, {false}});
+        std::vector<bool> uevar(numVars, false);
+        std::vector<bool> varkill(numVars, false);
+        li.UEVar.insert({block->id, uevar});
+        li.VarKill.insert({block->id, varkill});
         int k = block->instrs.size();
         for (int i = 1; i < k; ++i) {
             Instruction instr = block->instrs[i];

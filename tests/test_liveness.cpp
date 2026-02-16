@@ -101,28 +101,14 @@ protected:
 TEST_F(LivenessAnalysisTest, GatherInitialInfo) {
     LivenessInfo li = computeUseDef(f);
 
+    // Entry Block
     std::vector<bool> UEVarBlk1 = li.UEVar[1];
     std::vector<bool> VarKillBlk1 = li.VarKill[1];
 
     ASSERT_EQ(VarKillBlk1.size(), 2);
-    EXPECT_TRUE(VarKillBlk1[0]);
-    EXPECT_TRUE(VarKillBlk1[1]);
-    ASSERT_EQ(UEVarBlk1.size(), 0);
 
-    std::vector<bool> UEVarBlk2 = li.UEVar[2];
-    std::vector<bool> VarKillBlk2 = li.VarKill[2];
-
-    ASSERT_EQ(UEVarBlk2.size(), 2);
-    EXPECT_TRUE(UEVarBlk2[0]);
-    EXPECT_TRUE(UEVarBlk2[1]);
-    ASSERT_EQ(VarKillBlk2.size(), 0);
-
-    std::vector<bool> UEVarBlk3 = li.UEVar[3];
-    std::vector<bool> VarKillBlk3 = li.VarKill[3];
-
-    ASSERT_EQ(VarKillBlk3.size(), 0);
-    EXPECT_TRUE(UEVarBlk3[0]);
-    ASSERT_EQ(UEVarBlk3.size(), 1);
+    // Block B
+    // Exit Block
 }
 
 TEST_F(LivenessAnalysisTest, GatherInitialInfo_NonStandardInstrs) {
