@@ -105,27 +105,31 @@ TEST_F(LivenessAnalysisTest, GatherInitialInfo) {
     std::vector<bool> UEVarBlk1 = li.UEVar[1];
     std::vector<bool> VarKillBlk1 = li.VarKill[1];
 
-    for (const auto& var : VarKillBlk1)
-        std::cout << var << " ";
-    std::cout << "\n";
-
-    ASSERT_EQ(VarKillBlk1.size(), 2);
-    ASSERT_EQ(UEVarBlk1.size(), 0);
+    ASSERT_EQ(VarKillBlk1.size(), 3);
 
     EXPECT_TRUE(VarKillBlk1[1]);
     EXPECT_TRUE(VarKillBlk1[2]);
     EXPECT_FALSE(VarKillBlk1[0]);
+    EXPECT_FALSE(UEVarBlk1[0]);
 
     // Block B
+    std::vector<bool> UEVarBlk2 = li.UEVar[2];
+    std::vector<bool> VarKillBlk2 = li.VarKill[2];
 
+    ASSERT_EQ(UEVarBlk2.size(), 4);
+
+    EXPECT_TRUE(VarKillBlk2[3]);
+    EXPECT_TRUE(UEVarBlk2[1]);
+    EXPECT_TRUE(UEVarBlk2[2]);
+    EXPECT_FALSE(VarKillBlk2[1]);
 
     // Exit Block
-}
+    std::vector<bool> UEVarBlk3 = li.UEVar[3];
+    std::vector<bool> VarKillBlk3 = li.VarKill[3];
 
-TEST_F(LivenessAnalysisTest, GatherInitialInfo_NonStandardInstrs) {
-    // LivenessAnalysis L;
-    // LivenessResult li = L.analyse(f);
-    
+    ASSERT_EQ(UEVarBlk3.size(), 4);
+    EXPECT_TRUE(UEVarBlk3[3]);
+    EXPECT_FALSE(UEVarBlk3[2]);
 }
 
 TEST_F(LivenessAnalysisTest, Analyse) {

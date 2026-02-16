@@ -5,6 +5,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Default to Debug build if not specified
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
+endif()
+
 # Options
 option(ION_BUILD_TESTS "Build tests" ON)
 option(ION_USE_GTEST "Use GoogleTest" ON)
@@ -29,8 +34,10 @@ else()
     target_compile_options(ion_lib PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-# Enable Sanitizers for Debug builds
+# Debug build settings
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # Debug symbols and no optimization for LLDB
+    add_compile_options(-g -O0)
     # ASan, LSan, UBSan
     add_compile_options(-fsanitize=address -fsanitize=undefined -fno-omit-frame-pointer)
     add_link_options(-fsanitize=address -fsanitize=undefined)
