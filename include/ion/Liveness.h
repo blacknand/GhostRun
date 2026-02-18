@@ -8,20 +8,17 @@
 
 
 struct LivenessInfo {
+    // Block ID -> set
+    // set is indexed by register number/variable ID
     std::map<int, std::vector<bool>> UEVar;
     std::map<int, std::vector<bool>> VarKill;
 };
 
 // Hold the results of the equations solved
 struct LivenessResult {
-    // NOTE: good for correctness + debugging, slow in practice
+    // Block ID -> set
     std::map<int, std::set<int>> liveoutSet;
-    std::map<int, std::set<int>> liveinSet;     // NOTE: have no idea if want
-
-    // NOTE: fast, but with spare IDs may not be good idea
-    // Indexed by block ID, only if the CFGConstructor ensures dense IDs
-    // std::vector<std::set<int>> liveoutSet;        
-    // std::vector<std::set<int>> liveinSet;
+    std::map<int, std::set<int>> liveinSet;     
 };
 
 LivenessInfo computeUseDef(Function& fn);
@@ -29,12 +26,5 @@ LivenessInfo computeUseDef(Function& fn);
 class LivenessAnalysis {
 public:
     // Gathers the initial information and stores in the internal bitsets
-    // LivenessResult solveEquations(Function& fn);
     LivenessResult analyse(Function& fn);
-    // NOTE: for expansion, use Boost.DynamicBitset
-    // Block ID -> bitset
-    // std::map<int, std::vector<bool>> UEVar;   
-    // std::map<int, std::vector<bool>> VarKill; 
-// private:
-//     FRIEND_TEST(LivenessAnalysisTest, GatherInitialInfo);
 };

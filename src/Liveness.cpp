@@ -66,24 +66,32 @@ LivenessResult LivenessAnalysis::analyse(Function& fn) {
     bool changed = true;
     int liveOut = 0, liveIn = 0;
     std::map<int, std::set<int>> prevLiveoutSet = {};
-    std::map<int, std::set<int>> prevLiveoutSet = {};
+    std::map<int, std::set<int>> prevLiveinSet = {};
     while (changed) {
         changed = false;
         for (int i = 0; i < N; i++) {
-            // LiveOut(n) = UNION_ALL(m in succ(n)) { UEVar(m) UNION (LiveOut(m) MINUS VarKill(m)) }
-            // LiveIn(n) = UEVar(n) UNION (LiveOut(n) MINUS VarKill(n))
+            // Recompute LiveOut and LiveIn
+            std::set<int> prevLiveOut = lr.liveoutSet[fn.blocks[i]->id];
             std::vector<BasicBlock*> succs = fn.blocks[i]->succs;
-            // std::vector<bool> UEVar = lr.UEVar[i];
-            // std::vector<bool> VarKill = lr.UEVar[i];
-            int UEVar = lr.UEVar[i].size();
-            int VarKill = lr.UEVar[i].size();
+            for (const auto& succ : succs) {
+                // LiveOut(n) = UNION_ALL(m in succ(n)) { UEVar(m) UNION (LiveOut(m) MINUS VarKill(m)) }
+                // LiveIn(n) = UEVar(n) UNION (LiveOut(n) MINUS VarKill(n))
+                std::vector<bool> UEVar = lr.UEVar[succ->id];
+                std::vector<bool> VarKill = lr.VarKill[succ->id];
+                std::set<int> LiveOut = lr.liveoutSet[fn.blocks[i]->id];
+                std::vector<bool> LiveOutMinusVarKill = {};
+                for (int var : LiveOut) {
+                    if (!VarKill[var])
+                        LiveOutMinusVarKill.push_back(var);
+                    if (UEVar[i])
+                        LiveOutMinusVarKill.insert(i);
+                }
+                LiveOut.insert(LiveOutMinusVarKill.begin(), LiveOutMinusVarKill.end());
 
-            lr.liveoutSet[fn.blocks[i]->id].insert();
-            lr.liveinSet[fn.blocks[i]->id];
-            // If current LiveOut set is different that previos
-            if (prevLiveoutSet[fn.blocks[i]->id] != lr.liveoutSet[fn.blocks[i]->id]) {
-                changed = true;
-                prevLiveoutSet = lr.liveoutSet[fn.blocks[i]->id];
+                // If LiveOut changed
+                if (prevLiveOut != liveOut) {
+                    changed = true;
+                }
             }
         }
     }
