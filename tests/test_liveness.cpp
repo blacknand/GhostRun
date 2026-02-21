@@ -147,7 +147,22 @@ TEST_F(LivenessAnalysisTest, Analyse) {
     ASSERT_TRUE(BlockA_LiveOut.contains(2));
 
     // Block B
-    
+    std::set<int> BlockB_LiveOut = c.liveoutSet[2];
+    std::set<int> BlockB_LiveIn = c.liveinSet[2];
+
+    ASSERT_EQ(BlockB_LiveOut.size(), 1);
+    ASSERT_EQ(BlockB_LiveIn.size(), 2);
+
+    ASSERT_TRUE(BlockB_LiveIn.contains(1));
+    ASSERT_TRUE(BlockB_LiveIn.contains(2));
+    ASSERT_TRUE(BlockB_LiveOut.contains(3));
 
     // Block C (Exit)
+    std::set<int> BlockC_LiveOut = c.liveoutSet[3];
+    std::set<int> BlockC_LiveIn = c.liveinSet[3];
+
+    ASSERT_EQ(BlockC_LiveOut.size(), 0);
+    ASSERT_EQ(BlockC_LiveIn.size(), 1);
+
+    ASSERT_TRUE(BlockC_LiveIn.contains(3));
 }
