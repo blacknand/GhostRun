@@ -2,7 +2,7 @@
 
 LivenessInfo computeUseDef(Function& fn) {
     // Gather the initial information for liveness analysis,
-    // each block has k operations of the form "x <- y op z".
+    // each block has k operations of the (generic) form "x <- y op z".
     LivenessInfo li;
     for (const auto &block : fn.blocks) {
         // Get initial number of VRegs
@@ -27,8 +27,7 @@ LivenessInfo computeUseDef(Function& fn) {
         li.VarKill.insert({block->id, varkill});
         int k = block->instrs.size();
         for (int i = 0; i < k; ++i) {
-            Instruction instr = block->instrs[i];       // here
-            // Opcode op = instr.op;
+            Instruction instr = block->instrs[i];       
             std::variant<std::monostate, VReg> def = instr.def;
             std::vector<Operand> uses = instr.uses;
 
@@ -54,46 +53,80 @@ LivenessInfo computeUseDef(Function& fn) {
 }
 
 LivenessResult LivenessAnalysis::analyse(Function& fn) {
-    LivenessInfo livenessInfo = computeUseDef(fn);
+    LivenessInfo li = computeUseDef(fn);
     LivenessResult lr;
 
     int N = fn.blocks.size();
+
+    // Initialise sets to 0
     for (int i = 0; i < N; i++) {
         lr.liveoutSet[fn.blocks[i]->id] = {};
         lr.liveinSet[fn.blocks[i]->id] = {};
     }
 
     bool changed = true;
-    int liveOut = 0, liveIn = 0;
-    std::map<int, std::set<int>> prevLiveoutSet = {};
-    std::map<int, std::set<int>> prevLiveinSet = {};
     while (changed) {
         changed = false;
         for (int i = 0; i < N; i++) {
             // Recompute LiveOut and LiveIn
-            std::set<int> prevLiveOut = lr.liveoutSet[fn.blocks[i]->id];
-            std::vector<BasicBlock*> succs = fn.blocks[i]->succs;
-            for (const auto& succ : succs) {
-                // LiveOut(n) = UNION_ALL(m in succ(n)) { UEVar(m) UNION (LiveOut(m) MINUS VarKill(m)) }
-                // LiveIn(n) = UEVar(n) UNION (LiveOut(n) MINUS VarKill(n))
-                std::vector<bool> UEVar = lr.UEVar[succ->id];
-                std::vector<bool> VarKill = lr.VarKill[succ->id];
-                std::set<int> LiveOut = lr.liveoutSet[fn.blocks[i]->id];
-                std::vector<bool> LiveOutMinusVarKill = {};
-                for (int var : LiveOut) {
-                    if (!VarKill[var])
-                        LiveOutMinusVarKill.push_back(var);
-                    if (UEVar[i])
-                        LiveOutMinusVarKill.insert(i);
-                }
-                LiveOut.insert(LiveOutMinusVarKill.begin(), LiveOutMinusVarKill.end());
+            std::set<int> newLiveOutSet = {};
 
-                // If LiveOut changed
-                if (prevLiveOut != liveOut) {
-                    changed = true;
+            // LiveOut(B) = S ∈ succs(B) ⋃ ​(UEVar(S) ∪ (LiveOut(S) − VarKill(S)))
+            for (const auto& block : fn.blocks[i]->succs) {
+                std::vector<bool> UEVar = li.UEVar[block->id];
+                std::vector<bool> VarKill = li.VarKill[block->id];
+                std::set<int> LiveOut = lr.liveoutSet[block->id];
+
+                // Set for LiveOut(S) − VarKill(S)
+                std::set<int> LiveOut_NotVarKill = {};
+                for (const int& x : LiveOut) {
+                    if (!VarKill[x]) {
+                        LiveOut_NotVarKill.insert(x);
+                    }
                 }
+
+                // Set for UEVar(S) ∪ (LiveOut(S) − VarKill(S)
+                std::set<int> UEVar_U_LiveOut_NotVarKill = {};
+                for (const int& x : LiveOut_NotVarKill) {
+                    if (UEVar[x]) {
+                        UEVar_U_LiveOut_NotVarKill.insert(x);
+                    }
+                }
+                
+                newLiveOutSet.insert(UEVar_U_LiveOut_NotVarKill.begin(), UEVar_U_LiveOut_NotVarKill.end());
+            }
+
+            // If the LiveOut set has changed, update
+            if (lr.liveoutSet[fn.blocks[i]->id] != newLiveOutSet) {
+                changed = true;
+                lr.liveoutSet[fn.blocks[i]->id] = newLiveOutSet;
             }
         }
+
+    }
+
+    // Compute LiveIn when LiveOut sets for each block, B, are solved
+    // LiveIn(B) = UEVar(B) ∪ (LiveOut(B) − VarKill(B))
+    for (int i = 0; i < N; i++) {
+        std::vector<bool> UEVar = li.UEVar[fn.blocks[i]->id];
+        std::vector<bool> VarKill = li.VarKill[fn.blocks[i]->id];
+        std::set<int> LiveOut = lr.liveoutSet[fn.blocks[i]->id];
+        std::set<int> LiveOut_NotVarKill = {};
+        for (const int& x : LiveOut) {
+            if (!VarKill[x]) {
+                LiveOut_NotVarKill.insert(x);
+            }
+        }
+
+        // Set for UEVar(B) ∪ (LiveOut(B) − VarKill(B)
+        std::set<int> UEVar_U_LiveOut_NotVarKill = {};
+        for (const int& x : LiveOut_NotVarKill) {
+            if (UEVar[x]) {
+                UEVar_U_LiveOut_NotVarKill.insert(x);
+            }
+        }
+
+        lr.liveinSet[fn.blocks[i]->id] = UEVar_U_LiveOut_NotVarKill;
     }
 
     return lr;

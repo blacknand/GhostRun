@@ -9,7 +9,8 @@
 
 struct LivenessInfo {
     // Block ID -> set
-    // set is indexed by register number/variable ID
+    // vector is indexed by register number/variable ID,
+    // so UEVar[5][5] would be %5 if true
     std::map<int, std::vector<bool>> UEVar;
     std::map<int, std::vector<bool>> VarKill;
 };
